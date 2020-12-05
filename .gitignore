@@ -1,0 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Project specifics
+cnnface-env
+config.ini
+data
+docs
+
+# IDE
+.vscode
