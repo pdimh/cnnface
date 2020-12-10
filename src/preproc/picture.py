@@ -3,9 +3,11 @@ import numpy as np
 from matplotlib.patches import Rectangle
 import tensorflow as tf
 
+from utils.face_class import FaceClass
+
 
 class Picture:
-    def __init__(self, box, data, face=False):
+    def __init__(self, box, data, face_class=FaceClass.POSITIVE):
         self.data = data
 
         if len(self.data.shape) < 3:
@@ -21,9 +23,9 @@ class Picture:
                 max=self.size[0]-self.box[:, 0])
             self.box[:, 3] = self.box[:, 3].clip(
                 max=self.size[1]-self.box[:, 1])
-            self.face = True
+            self.face = face_class
         else:
-            self.face = False
+            self.face = FaceClass.NEGATIVE
 
     def draw(self):
 
@@ -31,12 +33,8 @@ class Picture:
         ax = plt.gca()
 
         for c in self.box:
-            if not self.face:
-                ax.add_patch(Rectangle((c[0], c[1]), width=c[2], height=c[3]-1,
-                                       fill=False, color='r'))
-            else:
-                ax.add_patch(Rectangle((c[0], c[1]), width=c[2], height=c[3]-1,
-                                       fill=False, color='b'))
+            ax.add_patch(Rectangle((c[0], c[1]), width=c[2], height=c[3]-1,
+                                   fill=False, color='b'))
         plt.show()
 
     def crop_rng(self, min_cropfactor=0.7, max_cropfactor=1.2):
@@ -96,7 +94,8 @@ class Picture:
         idx = np.random.randint(0, self.box.shape[0])
         crop_factor = np.random.randint(
             min_cropfactor * 100, max_cropfactor * 100 + 1) / 100
-        size = (self.box[idx, 2:4] * crop_factor).astype('int').clip(min=1)
+        size = (self.box[idx, 2:4] *
+                crop_factor).astype('int').clip(min=1, max=self.size)
         coord = np.random.randint(0, self.size - size + 1)
 
         data = np.array(tf.image.crop_to_bounding_box(

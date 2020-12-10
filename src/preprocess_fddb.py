@@ -38,7 +38,7 @@ def extract_samples(pics, sample_type):
         if len(pic.box):
             while count[0] > 0:
                 (crop, iou) = pic.extract_rnd((12, 12),
-                                              min_cropfactor=0.3, max_cropfactor=0.6)
+                                              min_cropfactor=0.1, max_cropfactor=2)
                 if iou < 0.3:
                     if(count[0] > 0):
                         count[0] -= 1
