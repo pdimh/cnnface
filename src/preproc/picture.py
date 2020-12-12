@@ -14,7 +14,7 @@ class Picture:
             raise ValueError('Data must be RGB')
 
         self.size = np.array([data.shape[1], data.shape[0]]).astype(int)
-        self.box = box.astype(int) if box is not None and len(
+        self.box = np.delete(box, np.where(box[:, 2]*box[:, 3] == 0), axis=0).astype(int) if box is not None and len(
             box) > 0 else np.array([])
 
         if(self.box.size > 0):

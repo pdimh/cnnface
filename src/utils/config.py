@@ -20,4 +20,6 @@ def get_training():
     section = get_section('TRAINING')
     section.setdefault('FORCE_CPU', "0")
     section.setdefault('GPU_MEM_LIMIT', "")
+    section.setdefault('BATCH_SIZE', "100")
+    section.setdefault('EPOCHS', "20")
     return section
