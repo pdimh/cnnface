@@ -1,8 +1,7 @@
-import numpy as np
 import tensorflow as tf
 
 
-@tf.autograph.experimental.do_not_convert
+# @tf.autograph.experimental.do_not_convert
 def loss_box(yt, yp):
 
     idx = yt[:, 2] * yt[:, 3] != 0
@@ -10,10 +9,10 @@ def loss_box(yt, yp):
     yp_n = tf.squeeze(yp)
     res = (yp_n - yt_n) ** 2
     res = tf.reduce_sum(res, axis=1)
-    return tf.where(idx, res, tf.zeros(yt.shape[0])) * 0.5
+    return tf.where(idx, res, tf.zeros(tf.shape(yt)[0])) * 0.5
 
 
-@tf.autograph.experimental.do_not_convert
+# @tf.autograph.experimental.do_not_convert
 def loss_class(yt, yp):
 
     yt_n = tf.squeeze(tf.cast(yt, 'float'))
@@ -24,7 +23,7 @@ def loss_class(yt, yp):
 
     res = -(yt_n * tf.math.log(yp_n[:, 1]) +
             (1-yt_n) * tf.math.log(yp_n[:, 0]))
-    return tf.where(idx, res, tf.zeros(yt.shape[0]))
+    return tf.where(idx, res, tf.zeros(tf.shape(yt)[0]))
 
 
 def model():
@@ -53,8 +52,7 @@ def model():
             'class_output': loss_class,
             'box_output': loss_box,
         },
-        metrics=['accuracy'],
-        run_eagerly=True
+        # run_eagerly=True
     )
 
     return model
