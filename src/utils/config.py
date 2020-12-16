@@ -12,6 +12,7 @@ def get_preprocess():
 
     section = get_section('PREPROCESSING')
     section.setdefault('FORCE_CPU', "1")
+    section.setdefault('ADAPTER', 'WIDERFACE')
     return section
 
 

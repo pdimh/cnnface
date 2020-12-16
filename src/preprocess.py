@@ -118,6 +118,7 @@ if int(config['FORCE_CPU']):
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 OUTPUT_PATH = os.path.relpath(config['OUTPUT_PATH'])
+ADAPTER = PicAdapter.WIDERFACE if config['ADAPTER'] == 'WIDERFACE' else PicAdapter.FDDB
 pics = get_picture(PicAdapter.WIDERFACE)
 
 np.random.shuffle(pics)
