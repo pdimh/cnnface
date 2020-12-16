@@ -1,11 +1,15 @@
 import numpy as np
 import os
+import sys
 import tensorflow as tf
 
 import utils.config as config_utils
+
 from utils.face_class import FaceClass
 from preproc.fddb import FddbPics
+from utils.pic_adapter import PicAdapter
 from utils.sample_type import SampleType
+from preproc.widerface import WFPics
 
 
 def save_img(pic, sample_type, face_class, filename):
@@ -32,7 +36,8 @@ def extract_samples(pics, sample_type):
     )
     progbar.update(0)
 
-    for pic in pics:
+    for t_pic in pics:
+        pic = t_pic.get_as_picture()
         count = [30, 10, 10]
         pic.filter_boxes(12)
         if len(pic.box):
@@ -85,15 +90,35 @@ def extract_samples(pics, sample_type):
         progbar.add(1)
 
 
+def get_picture(pic_adapter):
+    if pic_adapter == PicAdapter.WIDERFACE:
+        return _get_picture_widerface()
+    elif pic_adapter == PicAdapter.FDDB:
+        return _get_picture_fddb()
+    else:
+        sys.exit('PicAdapter is not valid.')
+
+
+def _get_picture_fddb():
+    fddb = FddbPics(os.path.relpath(config['FDDB_ANNOT']),
+                    os.path.relpath(config['FDDB_BIN']))
+    return fddb.pics
+
+
+def _get_picture_widerface():
+    wfpics = WFPics(os.path.relpath(config['WIDER_ANNOT']),
+                    os.path.relpath(config['WIDER_TRAIN']),
+                    os.path.relpath(config['WIDER_VALIDATION']))
+    return wfpics.pics
+
+
 config = config_utils.get_preprocess()
 
 if int(config['FORCE_CPU']):
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 OUTPUT_PATH = os.path.relpath(config['OUTPUT_PATH'])
-fddb = FddbPics(os.path.relpath(config['FDDB_ANNOT']),
-                os.path.relpath(config['FDDB_BIN']))
-pics = fddb.get_as_picture()
+pics = get_picture(PicAdapter.WIDERFACE)
 
 np.random.shuffle(pics)
 train_len = len(pics)*int(config['FDDB_TRAIN_PERCENT'])//100
