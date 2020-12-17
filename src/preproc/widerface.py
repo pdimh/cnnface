@@ -10,17 +10,13 @@ class WFPic:
     def __init__(self, path,  coord):
         self.path = path
         self.coord = coord
-        self._data = None
         self._data_res = {}
 
-    @property
-    def data(self):
-        if self._data is None:
-            self._data = np.array(Image.open(self.path))
-        return self._data
+    def get_data(self):
+        return np.array(Image.open(self.path))
 
     def get_as_picture(self):
-        return Picture(self.coord, self.data)
+        return Picture(self.coord, self.get_data())
 
 
 class WFPics:

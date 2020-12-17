@@ -13,17 +13,15 @@ class FddbPic:
         self.coord = coord
         self.coord_rect = np.column_stack([
             coord[:, 3]-coord[:, 1], coord[:, 4]-coord[:, 0], 2*coord[:, 1], 2*coord[:, 0]])
-        self._data = None
-        self._data_res = {}
 
-    @property
-    def data(self):
-        if self._data is None:
-            self._data = np.array(Image.open(self.path))
-        return self._data
+    def get_data(self):
+        return np.array(Image.open(self.path))
 
     def get_as_picture(self):
-        return Picture(self.coord, self.data)
+        try:
+            return Picture(self.coord_rect, self.get_data())
+        except:
+            return None
 
 
 class FddbPics:

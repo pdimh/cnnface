@@ -38,6 +38,9 @@ def extract_samples(pics, sample_type):
 
     for t_pic in pics:
         pic = t_pic.get_as_picture()
+        if not pic:
+            continue
+
         count = [30, 10, 10]
         pic.filter_boxes(12)
         if len(pic.box):
@@ -119,7 +122,7 @@ if int(config['FORCE_CPU']):
 
 OUTPUT_PATH = os.path.relpath(config['OUTPUT_PATH'])
 ADAPTER = PicAdapter.WIDERFACE if config['ADAPTER'] == 'WIDERFACE' else PicAdapter.FDDB
-pics = get_picture(PicAdapter.WIDERFACE)
+pics = get_picture(ADAPTER)
 
 np.random.shuffle(pics)
 train_len = len(pics)*int(config['FDDB_TRAIN_PERCENT'])//100

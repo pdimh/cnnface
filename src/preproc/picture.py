@@ -63,8 +63,9 @@ class Picture:
         return [Picture(np.array([newbox[i]]), new_data[i]) for i in range(0, len(self.box))]
 
     def filter_boxes(self, min_size):
-        self.box = np.delete(self.box, np.array(
-            np.where(self.box[:, 2:4] <= min_size))[0, :], 0)
+        if self.box.shape[0] > 0:
+            self.box = np.delete(self.box, np.array(
+                np.where(self.box[:, 2:4] <= min_size))[0, :], 0)
 
     # Extract all patches from picture
     def extract_patches(self, size, strides):
