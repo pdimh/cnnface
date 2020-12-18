@@ -83,6 +83,8 @@ model.fit(train_data,
           batch_size=int(config['BATCH_SIZE']),
           epochs=int(config['EPOCHS']))
 
+model.save(os.path.join(config['MODEL_PATH'], 'pnet'))
+
 # Uncomment to check accuracy
 
 # accuracy_class(model, train_data, train_class)
