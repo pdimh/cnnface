@@ -1,6 +1,4 @@
-from enum import Enum
 
-
-class PicAdapter(Enum):
+class PicAdapter():
     WIDERFACE = 'WIDERFACE'
     FDDB = 'FDDB'

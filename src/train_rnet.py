@@ -6,7 +6,7 @@ from random import shuffle
 
 import utils.config as config_utils
 import utils.gpu as gpu
-import model.pnet as pnet
+import model.rnet as rnet
 
 from utils.face_class import FaceClass
 from preprocessing.picture import Picture
@@ -34,7 +34,7 @@ def list(path, model_type, sample_type, face_class):
 
 
 def accuracy_class(model, test_data, test_class):
-    predicts = np.squeeze(model.predict(test_data)[0], axis=(1, 2))
+    predicts = model.predict(test_data)[0]
 
     err = 0
     total = len(test_data)
@@ -57,10 +57,10 @@ gpu.configure(config)
 
 PATH = os.path.relpath(config['PATH'])
 
-train_positive = list(PATH, ModelType.PNET,
+train_positive = list(PATH, ModelType.RNET,
                       SampleType.TRAIN, FaceClass.POSITIVE)
-train_part = list(PATH, ModelType.PNET, SampleType.TRAIN, FaceClass.PART_FACE)
-train_negative = list(PATH, ModelType.PNET,
+train_part = list(PATH, ModelType.RNET, SampleType.TRAIN, FaceClass.PART_FACE)
+train_negative = list(PATH, ModelType.RNET,
                       SampleType.TRAIN, FaceClass.NEGATIVE)
 
 trainpics = train_positive + train_part + train_negative
@@ -71,7 +71,7 @@ train_class = np.array([pic.face.value for pic in trainpics], dtype=int)
 train_box = np.array([pic.box[0].flatten() if len(pic.box) != 0 else np.array([
     0, 0, 0, 0]) for pic in trainpics])
 
-model = pnet.model()
+model = rnet.model()
 model.summary()
 model.fit(train_data,
           {
@@ -81,15 +81,15 @@ model.fit(train_data,
           batch_size=int(config['BATCH_SIZE']),
           epochs=int(config['EPOCHS']))
 
-model.save(os.path.join(config['MODEL_PATH'], ModelType.PNET))
+model.save(os.path.join(config['MODEL_PATH'], ModelType.RNET))
 
 # Uncomment to check accuracy
 
 # accuracy_class(model, train_data, train_class)
 
-# test_positive = list(PATH, ModelType.PNET, SampleType.TEST, FaceClass.POSITIVE)
-# test_part = list(PATH, ModelType.PNET, SampleType.TEST, FaceClass.PART_FACE)
-# test_negative = list(PATH, ModelType.PNET, SampleType.TEST, FaceClass.NEGATIVE)
+# test_positive = list(PATH, ModelType.RNET, SampleType.TEST, FaceClass.POSITIVE)
+# test_part = list(PATH, ModelType.RNET, SampleType.TEST, FaceClass.PART_FACE)
+# test_negative = list(PATH, ModelType.RNET, SampleType.TEST, FaceClass.NEGATIVE)
 
 # testpics = test_positive + test_part + test_negative
 
