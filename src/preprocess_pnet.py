@@ -1,6 +1,6 @@
 import numpy as np
-import os
 import tensorflow as tf
+import time
 
 import utils.config as config_utils
 import utils.gpu as gpu
@@ -85,19 +85,27 @@ def extract_samples(output_path, pics, sample_type):
         progbar.add(1)
 
 
-config = config_utils.get_preprocessing(ModelType.PNET)
-gpu.configure(config)
+start_time = time.time()
+config = config_utils.get_config()
+preConfig = config.preprocessing
+gpu.configure(preConfig.pnet.forceCpu, config.gpuMemLimit)
 
-OUTPUT_PATH = os.path.relpath(config['OUTPUT_PATH'])
-pics = preprocessing.get_picture(config)
+OUTPUT_PATH = preConfig.outputPath
+pics = preprocessing.get_picture(preConfig)
 
 np.random.shuffle(pics)
-train_len = len(pics) * int(config['TRAIN_PERCENT']) // 100
-val_len = len(pics) * int(config['VAL_PERCENT']) // 100
+train_len = len(pics) * preConfig.percentage.training // 100
+val_len = len(pics) * preConfig.percentage.validation // 100
 train_pics = pics[0:train_len]
 val_pics = pics[train_len:train_len + val_len]
 test_pics = pics[train_len + val_len:]
 
+train_pics = train_pics[0:10]
+val_pics = val_pics[0:10]
+test_pics = test_pics[0:10]
+
 extract_samples(OUTPUT_PATH, train_pics, SampleType.TRAIN)
 extract_samples(OUTPUT_PATH, val_pics, SampleType.VALIDATION)
 extract_samples(OUTPUT_PATH, test_pics, SampleType.TEST)
+
+print(f'\nElapsed Time: {(time.time() - start_time):.2f} (s)')

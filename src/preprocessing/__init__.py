@@ -24,16 +24,16 @@ def save_img(pic, output_path, model_type, sample_type, face_class, filename):
             path, f'{filename}_box'), pic.box, allow_pickle=False)
 
 
-def get_picture(config):
-    pic_adapter = PicAdapter.WIDERFACE if config['ADAPTER'] == 'WIDERFACE' else PicAdapter.FDDB
+def get_picture(preConfig):
+    pic_adapter = preConfig.adapter
     if pic_adapter == PicAdapter.WIDERFACE:
-        wfpics = WFPics(os.path.relpath(config['WIDER_ANNOT']),
-                        os.path.relpath(config['WIDER_TRAIN']),
-                        os.path.relpath(config['WIDER_VALIDATION']))
+        wfpics = WFPics(preConfig.widerface.annotation,
+                        preConfig.widerface.training,
+                        preConfig.widerface.validation)
         return wfpics.pics
     elif pic_adapter == PicAdapter.FDDB:
-        fddb = FddbPics(os.path.relpath(config['FDDB_ANNOT']),
-                        os.path.relpath(config['FDDB_BIN']))
+        fddb = FddbPics(preConfig.fddb.annotation,
+                        preConfig.fddb.binary)
         return fddb.pics
     else:
         sys.exit('PicAdapter is not valid.')

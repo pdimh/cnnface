@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import time
 
 from PIL import Image
 from random import shuffle
@@ -52,10 +53,12 @@ def accuracy_class(model, test_data, test_class):
     print(f'Accuracy: {1 - err / total}')
 
 
-config = config_utils.get_training()
-gpu.configure(config)
+start_time = time.time()
+config = config_utils.get_config()
+tConfig = config.training
+gpu.configure(tConfig.forceCpu, config.gpuMemLimit)
 
-PATH = os.path.relpath(config['PATH'])
+PATH = os.path.relpath(tConfig.path)
 
 train_positive = list(PATH, ModelType.PNET,
                       SampleType.TRAIN, FaceClass.POSITIVE)
@@ -78,10 +81,10 @@ model.fit(train_data,
               "class_output": train_class,
               "box_output": train_box
           },
-          batch_size=int(config['BATCH_SIZE']),
-          epochs=int(config['EPOCHS']))
+          batch_size=tConfig.batchSize,
+          epochs=tConfig.epochs)
 
-model.save(os.path.join(config['MODEL_PATH'], ModelType.PNET))
+model.save(os.path.join(config.modelPath, ModelType.PNET))
 
 # Uncomment to check accuracy
 
