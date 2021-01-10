@@ -1,8 +1,8 @@
 {
-    "modelPath": "data/train/",
-    "gpuMemLimit": 6700,
+    "model_path": "data/train/",
+    "gpu_mem_limit": 6700,
     "preprocessing": {
-        "outputPath": "data/sample/",
+        "output_path": "data/sample/",
         "fddb": {
             "annotation": "data/FDDB/annotations",
             "binary": "data/FDDB/bin"
@@ -19,20 +19,28 @@
         },
         "adapter": "WIDERFACE",
         "pnet": {
-            "forceCpu": true
+            "force_cpu": true
         },
         "rnet": {
-            "forceCpu": true,
-            "pyramidFactor": 0.7,
-            "stride": 3,
-            "minScore": 0.6
+            "force_cpu": true,
+            "iou_threshold": 0.6,
+            "min_score": 0.6,
+            "pyramid_factor": 0.7,
+            "stride": 2
         }
     },
     "training": {
         "path": "data/sample",
-        "outputPath": "data/train/",
-        "forceCpu": false,
-        "batchSize": 1000,
-        "epochs": 800
+        "output_path": "data/train/",
+        "pnet": {
+            "force_cpu": false,
+            "batch_size": 1000,
+            "epochs": 800
+        },
+        "rnet": {
+            "force_cpu": false,
+            "batch_size": 1000,
+            "epochs": 800
+        }
     }
 }

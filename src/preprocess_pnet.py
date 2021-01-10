@@ -87,22 +87,18 @@ def extract_samples(output_path, pics, sample_type):
 
 start_time = time.time()
 config = config_utils.get_config()
-preConfig = config.preprocessing
-gpu.configure(preConfig.pnet.forceCpu, config.gpuMemLimit)
+preconfig = config.preprocessing
+gpu.configure(preconfig.pnet.force_cpu, config.gpu_mem_limit)
 
-OUTPUT_PATH = preConfig.outputPath
-pics = preprocessing.get_picture(preConfig)
+OUTPUT_PATH = preconfig.output_path
+pics = preprocessing.get_picture(preconfig)
 
 np.random.shuffle(pics)
-train_len = len(pics) * preConfig.percentage.training // 100
-val_len = len(pics) * preConfig.percentage.validation // 100
+train_len = len(pics) * preconfig.percentage.training // 100
+val_len = len(pics) * preconfig.percentage.validation // 100
 train_pics = pics[0:train_len]
 val_pics = pics[train_len:train_len + val_len]
 test_pics = pics[train_len + val_len:]
-
-train_pics = train_pics[0:10]
-val_pics = val_pics[0:10]
-test_pics = test_pics[0:10]
 
 extract_samples(OUTPUT_PATH, train_pics, SampleType.TRAIN)
 extract_samples(OUTPUT_PATH, val_pics, SampleType.VALIDATION)

@@ -10,6 +10,7 @@ import preprocessing
 
 
 from utils.face_class import FaceClass
+from model import loss_box, loss_class
 from utils.model_type import ModelType
 from preprocessing.picture import Picture
 from utils.sample_type import SampleType
@@ -39,13 +40,13 @@ def extract_samples(output_path, pics, sample_type):
 
         if len(pic.box):
             pyramid = preprocessing.get_pyramid(
-                pic.data, factor=preConfig.rnet.pyramidFactor)
+                pic.data, factor=preconfig.rnet.pyramid_factor)
 
             bbox = np.array([], dtype=int).reshape(0, 4)
             score = np.array([], dtype='float32')
             for pyr_item in pyramid:
                 pic_ex = preprocessing.slide(pnet_model, Picture(
-                    None, pyr_item[0]), window_size=12, stride=preConfig.rnet.stride)
+                    None, pyr_item[0]), window_size=12, stride=preconfig.rnet.stride)
                 if(pic_ex.box.shape[0] > 0):
                     bbox = np.concatenate(
                         (bbox, np.around(pic_ex.box * pyr_item[1]).astype(int)))
@@ -53,7 +54,7 @@ def extract_samples(output_path, pics, sample_type):
             bbox_nms = np.column_stack(
                 [bbox[:, 0], bbox[:, 1], bbox[:, 0]+bbox[:, 2], bbox[:, 1]+bbox[:, 3]])
             idx_nms = tf.image.non_max_suppression(
-                bbox_nms, score, len(bbox), 0.5, preConfig.rnet.minScore)
+                bbox_nms, score, len(bbox), preconfig.rnet.iou_threshold, preconfig.rnet.min_score)
             sboxes = tf.gather(bbox, idx_nms)
 
             pos = neg = part = 0
@@ -85,26 +86,22 @@ def extract_samples(output_path, pics, sample_type):
 
 start_time = time.time()
 config = config_utils.get_config()
-preConfig = config.preprocessing
-gpu.configure(preConfig.rnet.forceCpu, config.gpuMemLimit)
+preconfig = config.preprocessing
+gpu.configure(preconfig.rnet.force_cpu, config.gpu_mem_limit)
 
-OUTPUT_PATH = preConfig.outputPath
-pics = preprocessing.get_picture(preConfig)
+OUTPUT_PATH = preconfig.output_path
+pics = preprocessing.get_picture(preconfig)
 
 pnet_model = tf.keras.models.load_model(
-    os.path.join(config.modelPath, 'pnet'),
-    custom_objects={'loss_class': pnet.loss_class, 'loss_box': pnet.loss_box})
+    os.path.join(config.model_path, 'pnet'),
+    custom_objects={'loss_class': loss_class, 'loss_box': loss_box})
 
 np.random.shuffle(pics)
-train_len = len(pics) * preConfig.percentage.training // 100
-val_len = len(pics) * preConfig.percentage.validation // 100
+train_len = len(pics) * preconfig.percentage.training // 100
+val_len = len(pics) * preconfig.percentage.validation // 100
 train_pics = pics[0:train_len]
 val_pics = pics[train_len:train_len + val_len]
 test_pics = pics[train_len + val_len:]
-
-train_pics = train_pics[0:10]
-val_pics = val_pics[0:10]
-test_pics = test_pics[0:10]
 
 extract_samples(OUTPUT_PATH, train_pics, SampleType.TRAIN)
 extract_samples(OUTPUT_PATH, val_pics, SampleType.VALIDATION)

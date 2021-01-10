@@ -73,8 +73,10 @@ def slide(net, picture, window_size=12, stride=1, threshold=0.5):
         xp = 0
         yp += stride
     prediction = net(np.array(patches) / 255, training=False)
-    fclass = np.squeeze(prediction[0], axis=(1, 2))
-    bbox = np.squeeze(prediction[1], axis=(1, 2))
+    fclass = np.reshape(
+        prediction[0], [prediction[0].shape[0], prediction[0].shape[-1]])
+    bbox = np.reshape(
+        prediction[1], [prediction[1].shape[0], prediction[1].shape[-1]])
 
     bbox_list = []
     score_list = []
