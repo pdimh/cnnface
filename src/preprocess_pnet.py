@@ -1,34 +1,26 @@
 import numpy as np
-import os
-import sys
 import tensorflow as tf
+import time
 
 import utils.config as config_utils
+import utils.gpu as gpu
+import preprocessing
 
 from utils.face_class import FaceClass
-from preproc.fddb import FddbPics
-from utils.pic_adapter import PicAdapter
+from utils.model_type import ModelType
 from utils.sample_type import SampleType
-from preproc.widerface import WFPics
 
 
-def save_img(pic, sample_type, face_class, filename):
-    path = os.path.join(OUTPUT_PATH, sample_type, str(face_class.name.lower()))
-    os.makedirs(path, exist_ok=True)
-    i = 0
-    tf.keras.preprocessing.image.save_img(
-        os.path.join(path, f'{filename}.jpg'), pic.data
-    )
+def extract_samples(output_path, pics, sample_type):
 
-    if face_class is not FaceClass.NEGATIVE:
-        np.save(os.path.join(
-            path, f'{filename}_box'), pic.box, allow_pickle=False)
+    if not len(pics):
+        return
 
-
-def extract_samples(pics, sample_type):
     counter = 0
 
-    tf.print(f"=> Starting Extraction: {sample_type} samples")
+    tf.print(
+        f'=> Starting Extraction ({ModelType.PNET}): {sample_type} samples'
+    )
 
     progbar = tf.keras.utils.Progbar(
         len(pics), width=50, verbose=1, interval=0.05, stateful_metrics=None,
@@ -50,18 +42,18 @@ def extract_samples(pics, sample_type):
                 if iou < 0.3:
                     if(count[0] > 0):
                         count[0] -= 1
-                        save_img(crop, sample_type,
-                                 FaceClass.NEGATIVE, f'{counter:04}')
+                        preprocessing.save_img(crop, output_path, ModelType.PNET, sample_type,
+                                               FaceClass.NEGATIVE, f'{counter:04}')
                 elif iou >= 0.4 and iou <= 0.65:
                     if(count[1] > 0):
                         count[1] -= 1
-                        save_img(crop, sample_type,
-                                 FaceClass.PART_FACE, f'{counter:04}')
+                        preprocessing.save_img(crop, output_path, ModelType.PNET, sample_type,
+                                               FaceClass.PART_FACE, f'{counter:04}')
                 elif iou > 0.65:
                     if(count[2] > 0):
                         count[2] -= 1
-                        save_img(crop, sample_type,
-                                 FaceClass.POSITIVE, f'{counter:04}')
+                        preprocessing.save_img(crop, output_path, ModelType.PNET, sample_type,
+                                               FaceClass.POSITIVE, f'{counter:04}')
                 else:
                     continue
                 counter += 1
@@ -76,13 +68,13 @@ def extract_samples(pics, sample_type):
                 if iou >= 0.4 and iou <= 0.65:
                     if(count[1] > 0):
                         count[1] -= 1
-                        save_img(crop, sample_type,
-                                 FaceClass.PART_FACE, f'{counter:04}')
+                        preprocessing.save_img(crop, output_path, ModelType.PNET, sample_type,
+                                               FaceClass.PART_FACE, f'{counter:04}')
                 elif iou > 0.65:
                     if(count[2] > 0):
                         count[2] -= 1
-                        save_img(crop, sample_type,
-                                 FaceClass.POSITIVE, f'{counter:04}')
+                        preprocessing.save_img(crop, output_path, ModelType.PNET, sample_type,
+                                               FaceClass.POSITIVE, f'{counter:04}')
                 else:
                     if err < 20:
                         err += 1
@@ -93,44 +85,23 @@ def extract_samples(pics, sample_type):
         progbar.add(1)
 
 
-def get_picture(pic_adapter):
-    if pic_adapter == PicAdapter.WIDERFACE:
-        return _get_picture_widerface()
-    elif pic_adapter == PicAdapter.FDDB:
-        return _get_picture_fddb()
-    else:
-        sys.exit('PicAdapter is not valid.')
+start_time = time.time()
+config = config_utils.get_config()
+preconfig = config.preprocessing
+gpu.configure(preconfig.pnet.force_cpu, config.gpu_mem_limit)
 
-
-def _get_picture_fddb():
-    fddb = FddbPics(os.path.relpath(config['FDDB_ANNOT']),
-                    os.path.relpath(config['FDDB_BIN']))
-    return fddb.pics
-
-
-def _get_picture_widerface():
-    wfpics = WFPics(os.path.relpath(config['WIDER_ANNOT']),
-                    os.path.relpath(config['WIDER_TRAIN']),
-                    os.path.relpath(config['WIDER_VALIDATION']))
-    return wfpics.pics
-
-
-config = config_utils.get_preprocess()
-
-if int(config['FORCE_CPU']):
-    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-
-OUTPUT_PATH = os.path.relpath(config['OUTPUT_PATH'])
-ADAPTER = PicAdapter.WIDERFACE if config['ADAPTER'] == 'WIDERFACE' else PicAdapter.FDDB
-pics = get_picture(ADAPTER)
+OUTPUT_PATH = preconfig.output_path
+pics = preprocessing.get_picture(preconfig)
 
 np.random.shuffle(pics)
-train_len = len(pics)*int(config['FDDB_TRAIN_PERCENT'])//100
-val_len = len(pics)*int(config['FDDB_VAL_PERCENT'])//100
+train_len = len(pics) * preconfig.percentage.training // 100
+val_len = len(pics) * preconfig.percentage.validation // 100
 train_pics = pics[0:train_len]
 val_pics = pics[train_len:train_len + val_len]
 test_pics = pics[train_len + val_len:]
 
-extract_samples(train_pics, SampleType.TRAIN)
-extract_samples(val_pics, SampleType.VALIDATION)
-extract_samples(test_pics, SampleType.TEST)
+extract_samples(OUTPUT_PATH, train_pics, SampleType.TRAIN)
+extract_samples(OUTPUT_PATH, val_pics, SampleType.VALIDATION)
+extract_samples(OUTPUT_PATH, test_pics, SampleType.TEST)
+
+print(f'\nElapsed Time: {(time.time() - start_time):.2f} (s)')

@@ -1,13 +1,14 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.patches import Rectangle
+import matplotlib.pyplot as plt
 import tensorflow as tf
+
+from matplotlib.patches import Rectangle
 
 from utils.face_class import FaceClass
 
 
 class Picture:
-    def __init__(self, box, data, face_class=FaceClass.POSITIVE):
+    def __init__(self, box, data, face_class=FaceClass.POSITIVE, score=None):
         self.data = data
 
         if len(self.data.shape) < 3:
@@ -24,6 +25,7 @@ class Picture:
             self.box[:, 3] = self.box[:, 3].clip(
                 max=self.size[1]-self.box[:, 1])
             self.face = face_class
+            self.score = score
         else:
             self.face = FaceClass.NEGATIVE
 
@@ -33,7 +35,7 @@ class Picture:
         ax = plt.gca()
 
         for c in self.box:
-            ax.add_patch(Rectangle((c[0], c[1]), width=c[2], height=c[3]-1,
+            ax.add_patch(Rectangle((c[0], c[1]), width=c[2]-1, height=c[3]-1,
                                    fill=False, color='b'))
         plt.show()
 
@@ -99,16 +101,17 @@ class Picture:
                 crop_factor).astype('int').clip(min=1, max=self.size)
         coord = np.random.randint(0, self.size - size + 1)
 
-        data = np.array(tf.image.crop_to_bounding_box(
-            self.data, coord[1], coord[0], size[1], size[0]))
+        return self.extract(np.concatenate([coord, size]), resize)
 
-        pic = Picture(self.get_new_boxes((*coord, *size)), data)
-        return pic if resize is None else pic.resize(resize), self.ioc(coord, size)
+    def extract(self, box, resize=None):
+        data = self.data[box[1]:box[1]+box[3], box[0]:box[0] + box[2], :]
+        pic = Picture(self.get_new_boxes(box), data)
+        return pic if resize is None else pic.resize(resize), self.iou(box)
 
-    def ioc(self, crop, size):
+    def iou(self, box):
         boxa = np.column_stack(
             (self.box[:, 0], self.box[:, 1], self.box[:, 0]+self.box[:, 2], self.box[:, 1]+self.box[:, 3]))
-        boxb = np.append(crop, crop+size)
+        boxb = np.append(box[0:2], box[0:2]+box[2:4])
 
         xa = np.maximum(boxa[:, 0], boxb[0])
         ya = np.maximum(boxa[:, 1], boxb[1])
@@ -151,7 +154,7 @@ class Picture:
 
     def resize(self, length):
         new_data = np.array(tf.cast(tf.image.resize(
-            self.data, length, method='area', preserve_aspect_ratio=False), tf.uint8))
+            self.data, length, preserve_aspect_ratio=False), tf.uint8))
         new_size = np.array(
             [new_data.shape[1], new_data.shape[0]])
         new_box = self.box

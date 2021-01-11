@@ -1,0 +1,46 @@
+{
+    "model_path": "data/train/",
+    "gpu_mem_limit": 6700,
+    "preprocessing": {
+        "output_path": "data/sample/",
+        "fddb": {
+            "annotation": "data/FDDB/annotations",
+            "binary": "data/FDDB/bin"
+        },
+        "percentage": {
+            "training": 70,
+            "validation": 0
+        },
+        "widerface": {
+            "annotation": "data/WIDER_FACE/wider_face_split",
+            "training": "data/WIDER_FACE/WIDER_train/images",
+            "validation": "data/WIDER_FACE/WIDER_val/images",
+            "testing": "data/WIDER_FACE/WIDER_test/images"
+        },
+        "adapter": "WIDERFACE",
+        "pnet": {
+            "force_cpu": true
+        },
+        "rnet": {
+            "force_cpu": true,
+            "iou_threshold": 0.6,
+            "min_score": 0.6,
+            "pyramid_factor": 0.7,
+            "stride": 2
+        }
+    },
+    "training": {
+        "path": "data/sample",
+        "output_path": "data/train/",
+        "pnet": {
+            "force_cpu": false,
+            "batch_size": 1000,
+            "epochs": 800
+        },
+        "rnet": {
+            "force_cpu": false,
+            "batch_size": 1000,
+            "epochs": 800
+        }
+    }
+}
