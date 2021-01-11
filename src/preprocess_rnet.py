@@ -5,7 +5,6 @@ import time
 
 import utils.config as config_utils
 import utils.gpu as gpu
-import model.pnet as pnet
 import preprocessing
 
 
