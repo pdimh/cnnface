@@ -7,8 +7,10 @@ from random import shuffle
 
 import utils.config as config_utils
 import utils.gpu as gpu
+import model.onet as onet
 import model.pnet as pnet
 import model.rnet as rnet
+
 
 from utils.face_class import FaceClass
 from preprocessing.picture import Picture
@@ -84,6 +86,8 @@ def fit(model_type):
         model = pnet.model()
     elif model_type == ModelType.RNET:
         model = rnet.model()
+    elif model_type == ModelType.ONET:
+        model = onet.model()
 
     model.summary()
     model.fit(train_data,
