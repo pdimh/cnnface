@@ -27,6 +27,13 @@
             "min_score": 0.6,
             "pyramid_factor": 0.7,
             "stride": 2
+        },
+        "onet": {
+            "force_cpu": true,
+            "iou_threshold": 0.6,
+            "min_score": 0.6,
+            "pyramid_factor": 0.7,
+            "stride": 2
         }
     },
     "training": {
@@ -38,6 +45,11 @@
             "epochs": 800
         },
         "rnet": {
+            "force_cpu": false,
+            "batch_size": 1000,
+            "epochs": 800
+        },
+        "onet": {
             "force_cpu": false,
             "batch_size": 1000,
             "epochs": 800

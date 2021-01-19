@@ -15,18 +15,28 @@ class Picture:
             raise ValueError('Data must be RGB')
 
         self.size = np.array([data.shape[1], data.shape[0]]).astype(int)
-        self.box = np.delete(box, np.where(box[:, 2]*box[:, 3] == 0), axis=0).astype(int) if box is not None and len(
-            box) > 0 else np.array([])
-
-        if(self.box.size > 0):
-            self.box = self.box.clip(min=0)
+        if box is not None and len(box) > 0:
+            # Sanitize bounding boxes
+            self.box = box.clip(min=0)
             self.box[:, 2] = self.box[:, 2].clip(
                 max=self.size[0]-self.box[:, 0])
             self.box[:, 3] = self.box[:, 3].clip(
                 max=self.size[1]-self.box[:, 1])
-            self.face = face_class
-            self.score = score
+
+            idx_empty = np.where(np.maximum(
+                self.box[:, 2], 0) * np.maximum(self.box[:, 3], 0) <= 0)
+            self.box = np.delete(self.box, idx_empty, axis=0).astype(int)
+            if score is not None:
+                self.score = np.delete(
+                    score, idx_empty)
         else:
+            self.box = np.array([])
+            self.score = None
+
+        if(self.box.size > 0):
+            self.face = face_class
+        else:
+            self.score = None
             self.face = FaceClass.NEGATIVE
 
     def draw(self):
