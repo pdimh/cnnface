@@ -52,10 +52,6 @@ def extract_samples(output_path, pics, sample_type):
                                           preconfig.onet.min_score)
             pos = neg = part = 0
             for sbox in pic_stage2.box:
-
-                if sbox[2]*sbox[3] <= 0:
-                    continue
-
                 [spic, iou] = pic.extract(sbox, (48, 48))
 
                 if iou < 0.3 and neg < 3 * (pos + 1):
