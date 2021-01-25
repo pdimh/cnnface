@@ -19,7 +19,11 @@ Pnet, Rnet, Onet implemented for classifying faces and bounding boxes regression
 * Add proper documentation;
 * Implement facial landmark localization;
 
+## Other TF Implementations
+1. https://github.com/AITTSMD/MTCNN-Tensorflow
+2. https://github.com/ipazc/mtcnn
+
 ## References
 
-1. K. Zhang, Z. Zhang, Z. Li and Y. Qiao, "Joint Face Detection and Alignment Using Multitask Cascaded Convolutional Networks," IEEE Signal Processing Letters. [(Github)](https://kpzhang93.github.io/MTCNN_face_detection_alignment/)
-2. [MTCNN-Tensorflow](https://github.com/AITTSMD/MTCNN-Tensorflow)
+1. K. Zhang, Z. Zhang, Z. Li and Y. Qiao, "Joint Face Detection and Alignment Using Multitask Cascaded Convolutional Networks," IEEE Signal Processing Letters. https://kpzhang93.github.io/MTCNN_face_detection_alignment/
+
