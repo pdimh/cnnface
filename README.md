@@ -6,7 +6,7 @@ although the code for face classification and bounding box regression is ready.
 
 ## Objective
 
-Main objective is providing learning ground about face detection using deep learning with an easy to use TensorFlow 2.x implementation.
+Main objective is to provide learning ground about face detection using deep learning with an easy to use TensorFlow 2.x implementation.
 
 ## Status
 
