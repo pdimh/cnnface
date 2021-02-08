@@ -88,7 +88,7 @@ def extract_samples(output_path, pics, sample_type):
 start_time = time.time()
 config = config_utils.get_config()
 preconfig = config.preprocessing
-gpu.configure(preconfig.pnet.force_cpu, config.gpu_mem_limit)
+gpu.configure(preconfig.force_cpu, config.gpu_mem_limit)
 
 OUTPUT_PATH = preconfig.output_path
 pics = preprocessing.get_picture(preconfig)

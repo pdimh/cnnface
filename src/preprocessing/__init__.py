@@ -57,38 +57,34 @@ def get_pyramid(data, factor=0.7, min_size=12):
     return pyramid
 
 
-def slide(net, picture, window_size=12, stride=1, threshold=0.5):
+def slide(net, data, batch_size, window_size=12, stride=1, threshold=0.5):
 
-    data = picture.data
-    shape = (data.shape[1], data.shape[0])
+    shape = tf.constant((data.shape[1], data.shape[0]))
+    patches = tf.squeeze(tf.image.extract_patches(images=tf.convert_to_tensor([data], dtype=tf.uint8),
+                                                  sizes=[1, window_size,
+                                                         window_size, 1],
+                                                  strides=[
+                                                      1, stride, stride, 1],
+                                                  rates=[1, 1, 1, 1],
+                                                  padding='VALID'), 0)
+    patches = tf.reshape(patches, shape=(-1, window_size, window_size, 3))
+    prediction = net.predict(
+        patches / tf.constant(255, dtype=tf.uint8), batch_size=batch_size)
+    fclass = tf.reshape(
+        prediction[0], [tf.shape(prediction[0])[0], tf.shape(prediction[0])[-1]])
 
-    patches = []
+    positive = tf.squeeze(
+        tf.cast(tf.where(fclass[:, 1] > threshold), dtype=tf.int32))
 
-    xp = yp = 0
-    while yp <= shape[1] - window_size:
-        while xp <= shape[0] - window_size:
-            ndata = data[yp:yp + window_size, xp:xp + window_size, :]
-            xp += stride
-            patches.append(ndata)
-        xp = 0
-        yp += stride
-    prediction = net(np.array(patches) / 255, training=False)
-    fclass = np.reshape(
-        prediction[0], [prediction[0].shape[0], prediction[0].shape[-1]])
-    bbox = np.reshape(
-        prediction[1], [prediction[1].shape[0], prediction[1].shape[-1]])
-
-    bbox_list = []
-    score_list = []
-
-    for i in range(len(fclass)):
-        if(fclass[i][FaceClass.POSITIVE.value] > threshold):
-            ix = i * stride
-            bbox_list.append(
-                np.around([
-                    (ix % (shape[0] - window_size + 1)) + bbox[i][0],
-                    (ix // (shape[0] - window_size + 1)) * stride + bbox[i][1],
-                    bbox[i][2],
-                    bbox[i][3]]).astype(int))
-            score_list.append(fclass[i][FaceClass.POSITIVE.value])
-    return Picture(np.array(bbox_list), data, score=np.array(score_list))
+    ix = positive * stride
+    bbox = tf.gather(tf.cast(tf.reshape(
+        prediction[1], [tf.shape(prediction[1])[0], tf.shape(prediction[1])[-1]]),
+        dtype=tf.int32), positive)
+    bbox_list = tf.transpose(tf.convert_to_tensor([(ix % (shape[0] - window_size + 1)
+                                                    ) + bbox[:, 0],
+                                                   (ix // (shape[0] - window_size + 1)) *
+                                                   stride + bbox[:, 1],
+                                                   bbox[:, 2],
+                                                   bbox[:, 3]]))
+    score_list = tf.gather(fclass, positive)[:, FaceClass.POSITIVE.value]
+    return Picture(bbox_list.numpy(), data, score=np.array(score_list.numpy()))

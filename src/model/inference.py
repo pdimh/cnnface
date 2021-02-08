@@ -6,7 +6,7 @@ import preprocessing
 from preprocessing.picture import Picture
 
 
-def stage1(pnet_model, picture, pyr_factor, stride, iou_threshold, min_score):
+def stage1(pnet_model, picture, pyr_factor, stride, iou_threshold, min_score, batch_size=200000):
 
     pyramid = preprocessing.get_pyramid(
         picture.data, factor=pyr_factor)
@@ -14,8 +14,8 @@ def stage1(pnet_model, picture, pyr_factor, stride, iou_threshold, min_score):
     bbox = np.array([], dtype=int).reshape(0, 4)
     score = np.array([], dtype='float32')
     for pyr_item in pyramid:
-        pic_ex = preprocessing.slide(pnet_model, Picture(
-            None, pyr_item[0]), window_size=12, stride=stride)
+        pic_ex = preprocessing.slide(
+            pnet_model, pyr_item[0], batch_size=batch_size, window_size=12, stride=stride)
         if(pic_ex.box.shape[0] > 0):
             bbox = np.concatenate(
                 (bbox, np.around(pic_ex.box * pyr_item[1]).astype(int)))
@@ -50,8 +50,8 @@ def stage2(rnet_model, picture, iou_threshold, min_score):
     for i in idx_face[0]:
         o_box = picture.box[i]
         c_box = np.array(prediction[1])[i]
-        n_box = np.around([o_box[0] + c_box[0], o_box[1] + c_box[1], c_box[2]
-                           * o_box[2] / w_size, c_box[3] * o_box[3] / w_size]).astype(int)
+        n_box = np.around([o_box[0] + c_box[0], o_box[1] +
+                           c_box[1], o_box[2], o_box[3]]).astype(int)
         bbox = np.concatenate((bbox, n_box.reshape(1, 4)))
         score.append(np.array(prediction[0][:, 1])[i])
 
@@ -84,8 +84,8 @@ def stage3(onet_model, picture, iou_threshold, min_score):
     for i in idx_face[0]:
         o_box = picture.box[i]
         c_box = np.array(prediction[1])[i]
-        n_box = np.around([o_box[0] + c_box[0], o_box[1] + c_box[1], c_box[2]
-                           * o_box[2] / w_size, c_box[3] * o_box[3] / w_size]).astype(int)
+        n_box = np.around([o_box[0] + c_box[0], o_box[1] +
+                           c_box[1], o_box[2], o_box[3]]).astype(int)
         bbox = np.concatenate((bbox, n_box.reshape(1, 4)))
         score.append(np.array(prediction[0][:, 1])[i])
 
