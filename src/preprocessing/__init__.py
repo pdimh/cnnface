@@ -39,20 +39,17 @@ def get_picture(preConfig):
         sys.exit('PicAdapter is not valid.')
 
 
-def get_pyramid(data, factor=0.7, min_size=12):
+def get_pyramid(data, levels=10, min_size=12):
+
+    factor = np.power(min_size / min(data.shape[0:2]), 1/levels)
+    n_sizes = data.shape[0:2] * \
+        np.transpose([np.power(factor, range(0, levels))])
+    n_sizes = np.floor(n_sizes).astype(int)
+
     pyramid = []
-
-    c_data = data
-    c_shape_o = np.array([data.shape[0], data.shape[1]])
-    c_shape = c_shape_o
-    while all(np.array(c_shape * factor) >= (min_size, min_size)):
-        new_data = np.array(tf.cast(tf.image.resize(
-            c_data, c_shape * factor), tf.uint8))
-
-        c_data = new_data
-        c_shape = np.array([new_data.shape[0], new_data.shape[1]])
-
-        pyramid.append((new_data, c_shape_o[0] / c_shape[0]))
+    for i in range(0, levels):
+        img_r = tf.cast(tf.image.resize(data, n_sizes[i]), tf.uint8).numpy()
+        pyramid.append((img_r, data.shape[0] / img_r.shape[0]))
 
     return pyramid
 
@@ -74,7 +71,7 @@ def slide(net, data, batch_size, window_size=12, stride=1, threshold=0.5):
         prediction[0], [tf.shape(prediction[0])[0], tf.shape(prediction[0])[-1]])
 
     positive = tf.squeeze(
-        tf.cast(tf.where(fclass[:, 1] > threshold), dtype=tf.int32))
+        tf.cast(tf.where(fclass[:, 1] > threshold), dtype=tf.int32), axis=[1])
 
     ix = positive * stride
     bbox = tf.gather(tf.cast(tf.reshape(

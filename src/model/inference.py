@@ -4,12 +4,13 @@ import tensorflow as tf
 import preprocessing
 
 from preprocessing.picture import Picture
+import time
 
 
-def stage1(pnet_model, picture, pyr_factor, stride, iou_threshold, min_score, batch_size=200000):
+def stage1(pnet_model, picture, pyr_levels, stride, iou_threshold, min_score, batch_size=200000):
 
     pyramid = preprocessing.get_pyramid(
-        picture.data, factor=pyr_factor)
+        picture.data, levels=pyr_levels)
 
     bbox = np.array([], dtype=int).reshape(0, 4)
     score = np.array([], dtype='float32')

@@ -42,7 +42,7 @@ def extract_samples(output_path, pics, sample_type):
         if len(pic.box):
             pic_stage1 = inference.stage1(pnet_model,
                                           pic,
-                                          preconfig.stage1.pyramid_factor,
+                                          preconfig.stage1.pyramid_levels,
                                           preconfig.stage1.stride,
                                           preconfig.stage1.iou_threshold,
                                           preconfig.stage1.min_score)

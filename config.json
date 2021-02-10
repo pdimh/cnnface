@@ -23,7 +23,7 @@
             "force_cpu": true,
             "iou_threshold": 0.6,
             "min_score": 0.5,
-            "pyramid_factor": 0.7,
+            "pyramid_levels": 11,
             "stride": 2
         },
         "stage2": {
@@ -53,6 +53,6 @@
         }
     },
     "inference": {
-        "batch_size": 200000
+        "batch_size": 150000
     }
 }
