@@ -62,7 +62,7 @@ def fit(model_type):
     config = config_utils.get_config()
     tconfig = config.training
     model_config = getattr(tconfig, model_type)
-    gpu.configure(model_config.force_cpu, config.gpu_mem_limit)
+    gpu.configure(tconfig.force_cpu, config.gpu_mem_limit)
 
     PATH = os.path.relpath(tconfig.path)
 

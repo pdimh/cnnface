@@ -1,4 +1,4 @@
 class ModelType():
-    PNET = 'pnet'
-    RNET = 'rnet'
-    ONET = 'onet'
+    PNET = 'stage1'
+    RNET = 'stage2'
+    ONET = 'stage3'

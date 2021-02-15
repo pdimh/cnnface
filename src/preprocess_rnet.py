@@ -44,7 +44,8 @@ def extract_samples(output_path, pics, sample_type):
                                           preconfig.stage1.pyramid_levels,
                                           preconfig.stage1.stride,
                                           preconfig.stage1.iou_threshold,
-                                          preconfig.stage1.min_score)
+                                          preconfig.stage1.min_score,
+                                          preconfig.stage1.batch_size)
 
             pos = neg = part = 0
             for sbox in pic_stage1.box:
@@ -77,7 +78,7 @@ OUTPUT_PATH = preconfig.output_path
 pics = preprocessing.get_picture(preconfig)
 
 pnet_model = tf.keras.models.load_model(
-    os.path.join(config.model_path, 'pnet'),
+    os.path.join(config.model_path, ModelType.PNET),
     custom_objects={'loss_class': loss_class, 'loss_box': loss_box})
 
 np.random.shuffle(pics)
