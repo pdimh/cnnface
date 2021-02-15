@@ -2,7 +2,7 @@
     "model_path": "data/train/",
     "gpu_mem_limit": 6700,
     "preprocessing": {
-        "force_cpu": true,
+        "force_cpu": false,
         "output_path": "data/sample/",
         "fddb": {
             "annotation": "data/FDDB/annotations",
@@ -20,34 +20,30 @@
         },
         "adapter": "WIDERFACE",
         "stage1": {
-            "force_cpu": true,
-            "iou_threshold": 0.6,
-            "min_score": 0.5,
-            "pyramid_levels": 11,
-            "stride": 2
-        },
-        "stage2": {
-            "force_cpu": true,
             "iou_threshold": 0.65,
             "min_score": 0.5,
-            "stride": 2
+            "pyramid_levels": 11,
+            "stride": 1,
+            "batch_size": 1000
+        },
+        "stage2": {
+            "iou_threshold": 0.65,
+            "min_score": 0.5
         }
     },
     "training": {
         "path": "data/sample",
         "output_path": "data/train/",
-        "pnet": {
-            "force_cpu": false,
+        "force_cpu": false,
+        "stage1": {
             "batch_size": 1000,
             "epochs": 800
         },
-        "rnet": {
-            "force_cpu": false,
+        "stage2": {
             "batch_size": 1000,
             "epochs": 800
         },
-        "onet": {
-            "force_cpu": false,
+        "stage3": {
             "batch_size": 1000,
             "epochs": 200
         }
