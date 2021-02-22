@@ -2,7 +2,7 @@
     "model_path": "data/train/",
     "gpu_mem_limit": 6700,
     "preprocessing": {
-        "force_cpu": false,
+        "force_cpu": true,
         "output_path": "data/sample/",
         "fddb": {
             "annotation": "data/FDDB/annotations",
@@ -22,9 +22,7 @@
         "stage1": {
             "iou_threshold": 0.65,
             "min_score": 0.5,
-            "pyramid_levels": 11,
-            "stride": 1,
-            "batch_size": 1000
+            "pyramid_levels": 11
         },
         "stage2": {
             "iou_threshold": 0.65,
@@ -44,8 +42,8 @@
             "epochs": 800
         },
         "stage3": {
-            "batch_size": 1000,
-            "epochs": 200
+            "batch_size": 700,
+            "epochs": 300
         }
     },
     "inference": {

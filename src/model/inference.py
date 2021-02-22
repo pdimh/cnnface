@@ -7,7 +7,7 @@ from preprocessing.picture import Picture
 import time
 
 
-def stage1(pnet_model, picture, pyr_levels, stride, iou_threshold, min_score, batch_size=200000):
+def stage1(pnet_model, picture, pyr_levels, iou_threshold, min_score):
 
     pyramid = preprocessing.get_pyramid(
         picture.data, levels=pyr_levels)
@@ -16,7 +16,7 @@ def stage1(pnet_model, picture, pyr_levels, stride, iou_threshold, min_score, ba
     score = np.array([], dtype='float32')
     for pyr_item in pyramid:
         pic_ex = preprocessing.slide(
-            pnet_model, pyr_item[0], batch_size=batch_size, window_size=12, stride=stride)
+            pnet_model, pyr_item[0], window_size=12)
         if(pic_ex.box.shape[0] > 0):
             bbox = np.concatenate(
                 (bbox, np.around(pic_ex.box * pyr_item[1]).astype(int)))

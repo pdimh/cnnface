@@ -7,17 +7,17 @@ def model():
     inputs = tf.keras.layers.Input((24, 24, 3))
 
     conv1 = tf.keras.layers.Conv2D(
-        28, (3, 3), strides=1)(inputs)
-    prelu1 = tf.keras.layers.PReLU()(conv1)
+        28, (3, 3), strides=(1, 1))(inputs)
+    prelu1 = tf.keras.layers.PReLU(shared_axes=[1, 2])(conv1)
     maxpool1 = tf.keras.layers.MaxPooling2D(
-        (3, 3), strides=2, padding='same')(prelu1)
+        (3, 3), strides=(2, 2), padding='same')(prelu1)
 
-    conv2 = tf.keras.layers.Conv2D(48, (3, 3), strides=1)(maxpool1)
-    prelu2 = tf.keras.layers.PReLU()(conv2)
-    maxpool2 = tf.keras.layers.MaxPooling2D((3, 3), strides=2)(prelu2)
+    conv2 = tf.keras.layers.Conv2D(48, (3, 3), strides=(1, 1))(maxpool1)
+    prelu2 = tf.keras.layers.PReLU(shared_axes=[1, 2])(conv2)
+    maxpool2 = tf.keras.layers.MaxPooling2D((3, 3), strides=(2, 2))(prelu2)
 
-    conv3 = tf.keras.layers.Conv2D(64, (2, 2), strides=1)(maxpool2)
-    prelu3 = tf.keras.layers.PReLU()(conv3)
+    conv3 = tf.keras.layers.Conv2D(64, (2, 2), strides=(1, 1))(maxpool2)
+    prelu3 = tf.keras.layers.PReLU(shared_axes=[1, 2])(conv3)
 
     flatten4 = tf.keras.layers.Flatten()(prelu3)
     dense4 = tf.keras.layers.Dense(128)(flatten4)

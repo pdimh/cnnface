@@ -54,29 +54,22 @@ def get_pyramid(data, levels=10, min_size=12):
     return pyramid
 
 
-def slide(net, data, batch_size, window_size=12, stride=1, threshold=0.5):
+def slide(net, data, window_size=12, threshold=0.5):
 
     shape = tf.constant((data.shape[1], data.shape[0]))
-    patches = tf.squeeze(tf.image.extract_patches(images=tf.convert_to_tensor([data], dtype=tf.uint8),
-                                                  sizes=[1, window_size,
-                                                         window_size, 1],
-                                                  strides=[
-                                                      1, stride, stride, 1],
-                                                  rates=[1, 1, 1, 1],
-                                                  padding='VALID'), 0)
-    patches = tf.reshape(patches, shape=(-1, window_size, window_size, 3))
-    prediction = net.predict(
-        patches / tf.constant(255, dtype=tf.uint8), batch_size=batch_size)
+    prediction = net(tf.expand_dims(
+        data / tf.constant(255, dtype=tf.uint8), axis=0))
     fclass = tf.reshape(
-        prediction[0], [tf.shape(prediction[0])[0], tf.shape(prediction[0])[-1]])
+        prediction[0], [tf.shape(prediction[0])[1] * tf.shape(prediction[0])[2], tf.shape(prediction[0])[-1]])
+    fbox = tf.reshape(
+        prediction[1], [tf.shape(prediction[1])[1] * tf.shape(prediction[1])[2], tf.shape(prediction[1])[-1]])
 
     positive = tf.squeeze(
         tf.cast(tf.where(fclass[:, 1] > threshold), dtype=tf.int32), axis=[1])
 
+    stride = 2
     ix = positive * stride
-    bbox = tf.gather(tf.cast(tf.reshape(
-        prediction[1], [tf.shape(prediction[1])[0], tf.shape(prediction[1])[-1]]),
-        dtype=tf.int32), positive)
+    bbox = tf.gather(tf.cast(fbox, dtype=tf.int32), positive)
     bbox_list = tf.transpose(tf.convert_to_tensor([(ix % (shape[0] - window_size + 1)
                                                     ) + bbox[:, 0],
                                                    (ix // (shape[0] - window_size + 1)) *
