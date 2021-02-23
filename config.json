@@ -46,7 +46,5 @@
             "epochs": 300
         }
     },
-    "inference": {
-        "batch_size": 150000
-    }
+    "inference": {}
 }
