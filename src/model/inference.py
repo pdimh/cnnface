@@ -11,7 +11,7 @@ def stage1(pnet_model, picture, pyr_levels, iou_threshold, min_score):
         picture.data, levels=pyr_levels)
 
     bbox = np.array([], dtype=int).reshape(0, 4)
-    score = np.array([], dtype='float32')
+    score = np.array([], dtype='float16')
     for pyr_item in pyramid:
         pic_ex = _slide(
             pnet_model, pyr_item[0])
@@ -39,7 +39,8 @@ def stage2(rnet_model, picture, iou_threshold, min_score):
     for box in picture.box:
         patches.append(picture.extract(box, resize=(w_size, w_size))[0])
 
-    r_data = np.array([p.data for p in patches]) / 255
+    r_data = np.true_divide(
+        np.array([p.data for p in patches]), 255, dtype=np.float16)
     prediction = rnet_model(r_data, training=False)
 
     idx_face = np.where(np.array(prediction[0][:, 1]) > min_score)
@@ -73,7 +74,8 @@ def stage3(onet_model, picture, iou_threshold, min_score):
     for box in picture.box:
         patches.append(picture.extract(box, resize=(w_size, w_size))[0])
 
-    r_data = np.array([p.data for p in patches]) / 255
+    r_data = np.true_divide(
+        np.array([p.data for p in patches]), 255, dtype=np.float16)
     prediction = onet_model(r_data, training=False)
 
     idx_face = np.where(np.array(prediction[0][:, 1]) > min_score)

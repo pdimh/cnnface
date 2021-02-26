@@ -76,7 +76,8 @@ def fit(model_type):
     trainpics = train_positive + train_part + train_negative
     shuffle(trainpics)
 
-    train_data = np.array([pic.data for pic in trainpics]) / 255
+    train_data = np.true_divide(
+        np.array([pic.data for pic in trainpics]), 255, dtype=np.float16)
     train_class = np.array([pic.face.value for pic in trainpics], dtype=int)
     train_box = np.array([pic.box[0].flatten() if len(pic.box) != 0 else np.array([
         0, 0, 0, 0]) for pic in trainpics])
@@ -112,7 +113,8 @@ def fit(model_type):
 
     testpics = test_positive + test_part + test_negative
 
-    test_data = np.array([pic.data for pic in testpics]) / 255
+    test_data = np.true_divide(
+        np.array([pic.data for pic in testpics]), 255, dtype=np.float16)
     test_class = np.array([pic.face.value for pic in testpics], dtype=int)
 
     accuracy_class(model, test_data, test_class)
