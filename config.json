@@ -9,7 +9,7 @@
             "binary": "data/FDDB/bin"
         },
         "percentage": {
-            "training": 70,
+            "training": 85,
             "validation": 0
         },
         "widerface": {
@@ -22,7 +22,8 @@
         "stage1": {
             "iou_threshold": 0.65,
             "min_score": 0.5,
-            "pyramid_levels": 11
+            "pyramid_levels": 11,
+            "min_face_size": 10
         },
         "stage2": {
             "iou_threshold": 0.65,
@@ -35,16 +36,18 @@
         "force_cpu": false,
         "stage1": {
             "batch_size": 1000,
-            "epochs": 800
+            "epochs": 300
         },
         "stage2": {
             "batch_size": 1000,
-            "epochs": 800
+            "epochs": 600
         },
         "stage3": {
             "batch_size": 700,
             "epochs": 300
         }
     },
-    "inference": {}
+    "inference": {
+        "min_face_size": 20
+    }
 }

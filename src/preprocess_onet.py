@@ -44,7 +44,8 @@ def extract_samples(output_path, pics, sample_type):
                                           pic,
                                           preconfig.stage1.pyramid_levels,
                                           preconfig.stage1.iou_threshold,
-                                          preconfig.stage1.min_score)
+                                          preconfig.stage1.min_score,
+                                          preconfig.stage1.min_face_size)
             pic_stage2 = inference.stage2(rnet_model,
                                           pic_stage1,
                                           preconfig.stage2.iou_threshold,

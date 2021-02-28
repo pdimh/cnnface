@@ -5,10 +5,10 @@ from utils.face_class import FaceClass
 from preprocessing.picture import Picture
 
 
-def stage1(pnet_model, picture, pyr_levels, iou_threshold, min_score):
+def stage1(pnet_model, picture, pyr_levels, iou_threshold, min_score, min_face_size=20):
 
     pyramid = _get_pyramid(
-        picture.data, levels=pyr_levels)
+        picture.data, levels=pyr_levels, min_size=min_face_size)
 
     bbox = np.array([], dtype=int).reshape(0, 4)
     score = np.array([], dtype='float16')
@@ -19,6 +19,9 @@ def stage1(pnet_model, picture, pyr_levels, iou_threshold, min_score):
             bbox = np.concatenate(
                 (bbox, np.around(pic_ex.box * pyr_item[1]).astype(int)))
             score = np.concatenate((score, pic_ex.score))
+    idx_too_small = np.where(bbox[:, 2:4] < min_face_size)
+    bbox = np.delete(bbox, idx_too_small, axis=0)
+    score = np.delete(score, idx_too_small, axis=0)
     bbox_nms = np.column_stack(
         [bbox[:, 0], bbox[:, 1], bbox[:, 0]+bbox[:, 2], bbox[:, 1]+bbox[:, 3]])
     idx_nms = tf.image.non_max_suppression(
