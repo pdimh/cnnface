@@ -2,13 +2,14 @@
     "model_path": "data/train/",
     "gpu_mem_limit": 6700,
     "preprocessing": {
+        "force_cpu": true,
         "output_path": "data/sample/",
         "fddb": {
             "annotation": "data/FDDB/annotations",
             "binary": "data/FDDB/bin"
         },
         "percentage": {
-            "training": 70,
+            "training": 85,
             "validation": 0
         },
         "widerface": {
@@ -18,41 +19,35 @@
             "testing": "data/WIDER_FACE/WIDER_test/images"
         },
         "adapter": "WIDERFACE",
-        "pnet": {
-            "force_cpu": true
+        "stage1": {
+            "iou_threshold": 0.65,
+            "min_score": 0.5,
+            "pyramid_levels": 11,
+            "min_face_size": 10
         },
-        "rnet": {
-            "force_cpu": true,
-            "iou_threshold": 0.6,
-            "min_score": 0.6,
-            "pyramid_factor": 0.7,
-            "stride": 2
-        },
-        "onet": {
-            "force_cpu": true,
-            "iou_threshold": 0.6,
-            "min_score": 0.6,
-            "pyramid_factor": 0.7,
-            "stride": 2
+        "stage2": {
+            "iou_threshold": 0.65,
+            "min_score": 0.5
         }
     },
     "training": {
         "path": "data/sample",
         "output_path": "data/train/",
-        "pnet": {
-            "force_cpu": false,
+        "force_cpu": false,
+        "stage1": {
             "batch_size": 1000,
-            "epochs": 800
+            "epochs": 300
         },
-        "rnet": {
-            "force_cpu": false,
+        "stage2": {
             "batch_size": 1000,
-            "epochs": 800
+            "epochs": 600
         },
-        "onet": {
-            "force_cpu": false,
-            "batch_size": 1000,
-            "epochs": 800
+        "stage3": {
+            "batch_size": 700,
+            "epochs": 300
         }
+    },
+    "inference": {
+        "min_face_size": 20
     }
 }

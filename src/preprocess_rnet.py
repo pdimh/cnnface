@@ -3,6 +3,7 @@ import os
 import tensorflow as tf
 import time
 
+import model.inference as inference
 import utils.config as config_utils
 import utils.gpu as gpu
 import preprocessing
@@ -38,31 +39,15 @@ def extract_samples(output_path, pics, sample_type):
             continue
 
         if len(pic.box):
-            pyramid = preprocessing.get_pyramid(
-                pic.data, factor=preconfig.rnet.pyramid_factor)
-
-            bbox = np.array([], dtype=int).reshape(0, 4)
-            score = np.array([], dtype='float32')
-            for pyr_item in pyramid:
-                pic_ex = preprocessing.slide(pnet_model, Picture(
-                    None, pyr_item[0]), window_size=12, stride=preconfig.rnet.stride)
-                if(pic_ex.box.shape[0] > 0):
-                    bbox = np.concatenate(
-                        (bbox, np.around(pic_ex.box * pyr_item[1]).astype(int)))
-                    score = np.concatenate((score, pic_ex.score))
-            bbox_nms = np.column_stack(
-                [bbox[:, 0], bbox[:, 1], bbox[:, 0]+bbox[:, 2], bbox[:, 1]+bbox[:, 3]])
-            idx_nms = tf.image.non_max_suppression(
-                bbox_nms, score, len(bbox), preconfig.rnet.iou_threshold, preconfig.rnet.min_score)
-            sboxes = tf.gather(bbox, idx_nms)
+            pic_stage1 = inference.stage1(pnet_model,
+                                          pic,
+                                          preconfig.stage1.pyramid_levels,
+                                          preconfig.stage1.iou_threshold,
+                                          preconfig.stage1.min_score,
+                                          preconfig.stage1.min_face_size)
 
             pos = neg = part = 0
-            sboxes = tf.random.shuffle(sboxes)
-            for sbox in sboxes:
-
-                if sbox[2]*sbox[3] <= 0:
-                    continue
-
+            for sbox in pic_stage1.box:
                 [spic, iou] = pic.extract(sbox, (24, 24))
 
                 if iou < 0.3 and neg < 3 * (pos + 1):
@@ -86,13 +71,13 @@ def extract_samples(output_path, pics, sample_type):
 start_time = time.time()
 config = config_utils.get_config()
 preconfig = config.preprocessing
-gpu.configure(preconfig.rnet.force_cpu, config.gpu_mem_limit)
+gpu.configure(preconfig.force_cpu, config.gpu_mem_limit)
 
 OUTPUT_PATH = preconfig.output_path
 pics = preprocessing.get_picture(preconfig)
 
 pnet_model = tf.keras.models.load_model(
-    os.path.join(config.model_path, 'pnet'),
+    os.path.join(config.model_path, ModelType.PNET),
     custom_objects={'loss_class': loss_class, 'loss_box': loss_box})
 
 np.random.shuffle(pics)

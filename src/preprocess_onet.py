@@ -42,14 +42,14 @@ def extract_samples(output_path, pics, sample_type):
         if len(pic.box):
             pic_stage1 = inference.stage1(pnet_model,
                                           pic,
-                                          preconfig.rnet.pyramid_factor,
-                                          preconfig.rnet.stride,
-                                          preconfig.rnet.iou_threshold,
-                                          preconfig.rnet.min_score)
+                                          preconfig.stage1.pyramid_levels,
+                                          preconfig.stage1.iou_threshold,
+                                          preconfig.stage1.min_score,
+                                          preconfig.stage1.min_face_size)
             pic_stage2 = inference.stage2(rnet_model,
                                           pic_stage1,
-                                          preconfig.onet.iou_threshold,
-                                          preconfig.onet.min_score)
+                                          preconfig.stage2.iou_threshold,
+                                          preconfig.stage2.min_score)
             pos = neg = part = 0
             for sbox in pic_stage2.box:
                 [spic, iou] = pic.extract(sbox, (48, 48))
@@ -75,16 +75,16 @@ def extract_samples(output_path, pics, sample_type):
 start_time = time.time()
 config = config_utils.get_config()
 preconfig = config.preprocessing
-gpu.configure(preconfig.onet.force_cpu, config.gpu_mem_limit)
+gpu.configure(preconfig.force_cpu, config.gpu_mem_limit)
 
 OUTPUT_PATH = preconfig.output_path
 pics = preprocessing.get_picture(preconfig)
 
 pnet_model = tf.keras.models.load_model(
-    os.path.join(config.model_path, 'pnet'),
+    os.path.join(config.model_path, ModelType.PNET),
     custom_objects={'loss_class': loss_class, 'loss_box': loss_box})
 rnet_model = tf.keras.models.load_model(
-    os.path.join(config.model_path, 'rnet'),
+    os.path.join(config.model_path, ModelType.RNET),
     custom_objects={'loss_class': loss_class, 'loss_box': loss_box})
 
 np.random.shuffle(pics)
