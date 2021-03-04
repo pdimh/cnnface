@@ -1,9 +1,9 @@
 {
-    "model_path": "data/train/",
     "gpu_mem_limit": 6700,
+    "sample_path": "data/sample/",
+    "model_path": "data/train/",
     "preprocessing": {
         "force_cpu": true,
-        "output_path": "data/sample/",
         "fddb": {
             "annotation": "data/FDDB/annotations",
             "binary": "data/FDDB/bin"
@@ -31,8 +31,6 @@
         }
     },
     "training": {
-        "path": "data/sample",
-        "output_path": "data/train/",
         "force_cpu": false,
         "stage1": {
             "batch_size": 1000,
@@ -43,11 +41,25 @@
             "epochs": 600
         },
         "stage3": {
-            "batch_size": 700,
-            "epochs": 300
+            "batch_size": 1000,
+            "epochs": 900
         }
     },
     "inference": {
-        "min_face_size": 20
+        "force_cpu": true,
+        "stage1": {
+            "iou_threshold": 0.7,
+            "min_score": 0.7,
+            "pyramid_levels": 11,
+            "min_face_size": 20
+        },
+        "stage2": {
+            "iou_threshold": 0.7,
+            "min_score": 0.7
+        },
+        "stage3": {
+            "iou_threshold": 0.2,
+            "min_score": 0.7
+        }
     }
 }

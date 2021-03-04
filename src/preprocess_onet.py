@@ -77,7 +77,7 @@ config = config_utils.get_config()
 preconfig = config.preprocessing
 gpu.configure(preconfig.force_cpu, config.gpu_mem_limit)
 
-OUTPUT_PATH = preconfig.output_path
+OUTPUT_PATH = config.sample_path
 pics = preprocessing.get_picture(preconfig)
 
 pnet_model = tf.keras.models.load_model(

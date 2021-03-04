@@ -66,7 +66,7 @@ def fit(model_type):
     model_config = getattr(tconfig, model_type)
     gpu.configure(tconfig.force_cpu, config.gpu_mem_limit)
 
-    PATH = os.path.relpath(tconfig.path)
+    PATH = os.path.relpath(config.sample_path)
 
     train_positive = list(PATH, model_type,
                           SampleType.TRAIN, FaceClass.POSITIVE)
