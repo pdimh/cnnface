@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import tensorflow as tf
 import time
 
 from PIL import Image
@@ -16,6 +17,7 @@ from utils.face_class import FaceClass
 from preprocessing.picture import Picture
 from utils.model_type import ModelType
 from utils.sample_type import SampleType
+from model import loss_box, loss_class
 
 
 def list(path, model_type, sample_type, face_class):
@@ -84,13 +86,17 @@ def fit(model_type):
     train_box = np.array([pic.box[0].flatten() if len(pic.box) != 0 else np.array([
         0, 0, 0, 0]) for pic in trainpics])
 
-    model = None
-    if model_type == ModelType.PNET:
-        model = pnet.model()
-    elif model_type == ModelType.RNET:
-        model = rnet.model()
-    elif model_type == ModelType.ONET:
-        model = onet.model()
+    try:
+        model = tf.keras.models.load_model(
+            os.path.join(config.model_path, model_type),
+            custom_objects={'loss_class': loss_class, 'loss_box': loss_box})
+    except IOError:
+        if model_type == ModelType.PNET:
+            model = pnet.model()
+        elif model_type == ModelType.RNET:
+            model = rnet.model()
+        elif model_type == ModelType.ONET:
+            model = onet.model()
 
     model.summary()
     model.fit(train_data,
