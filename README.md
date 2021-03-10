@@ -12,18 +12,34 @@ Main objective is to provide learning ground about face detection using deep lea
 
 Pnet, Rnet, Onet implemented for classifying faces and bounding boxes regression. Landing marks are not supported yet.
 
+## Instructions
+
+All configuration is available through config.json. I have added configurations which i achieved the best results
+in my machine. You can change as you wish. Some of then were taken from [1], others i found empirically.
+
+You will need  tensorflow 2 and matplotlib installed.
+
+Firstly, you need to extract widerface files to preprocessing.widerface.*.
+Then, run the following scripts:
+1. preprocess_pnet.py
+2. train_pnet.py
+3. preprocess_rnet.py
+4. train_rnet.py
+5. preprocess_onet.py
+6. train_onet.py
+
+without parameters. It is straightforward, but it will take a while.
+After training all stages, you can run detect.py passing the path of the image.
+
 ## TODO
 
-* Improve accuracy of each stage of the classifier;
-* Improve performance during extraction and inference;
-* Add proper documentation;
 * Implement facial landmark localization;
 
 ## Other TF Implementations
-1. https://github.com/AITTSMD/MTCNN-Tensorflow
-2. https://github.com/ipazc/mtcnn
+
+* https://github.com/AITTSMD/MTCNN-Tensorflow
+* https://github.com/ipazc/mtcnn
 
 ## References
 
 1. K. Zhang, Z. Zhang, Z. Li and Y. Qiao, "Joint Face Detection and Alignment Using Multitask Cascaded Convolutional Networks," IEEE Signal Processing Letters. https://kpzhang93.github.io/MTCNN_face_detection_alignment/
-
