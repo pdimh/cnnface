@@ -17,7 +17,7 @@ Pnet, Rnet, Onet implemented for classifying faces and bounding boxes regression
 All configuration is available through config.json. I have added configurations which i achieved the best results
 in my machine. You can change as you wish. Some of then were taken from [1], others i found empirically.
 
-You will need  tensorflow 2 and matplotlib installed.
+You will need tensorflow 2 (tested with 2.4.1) and matplotlib (tested with matplotlib 3.4.0) installed.
 
 Firstly, you need to extract widerface files to preprocessing.widerface.*.
 Then, run the following scripts:
